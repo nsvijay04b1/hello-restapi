@@ -4,6 +4,7 @@ from config import config
 from flask import Flask, request, jsonify, json, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime, timedelta, date
+import calendar
 
 # configurable - datedelta , no of days atleast dob should be older than 
 datedelta=1  
@@ -42,8 +43,7 @@ class put_dob(Resource):
             sql="""INSERT INTO hello (username, dateofbirth)
                    VALUES ( '%s', '%s' ) 
                    ON CONFLICT ON CONSTRAINT firstkey
-                   DO UPDATE  SET username = '%s' , dateofbirth='%s'""" 
-            # RETURNING username;"""
+                   DO UPDATE  SET username = '%s' , dateofbirth='%s' RETURNING username;""" 
             data=(user_id,dob,user_id,dob)
             params = config()
 
@@ -58,7 +58,7 @@ class put_dob(Resource):
             print('Query:'+sql)
             cur.execute(sql%data)
             conn.commit()
-            print(cur.fetchone())
+            #print(cur.fetchone())
             user = cur.fetchone()[0]
             print(" user: "+user);
             # close the communication with the PostgreSQL
@@ -72,7 +72,7 @@ class put_dob(Resource):
                 return make_response(jsonify( message =  "PUT method complete,  username : "+user_id + " dateOfBirth: "+dob ), 204)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-            description = "PUT failed for given dateOfBirth ."
+            description = "PUT failed for given username & dateOfBirth ."
             return make_response(jsonify(message = description+str(error)),400)
         finally:
             if conn is not None:
@@ -116,7 +116,7 @@ class get_dob(Resource):
             if ret_row is None:
                 print( user + " not found ")
                 description= "Hello "+user+" , PUT /hello/"+user+" { \"dateOfBirth\" : \"YYYY-MM-DD\" } for insert/update username and dateofbirth "
-                return jsonify( message = description)
+                return make_response(jsonify( message = description),400)
             else :
                 if datetime.strptime(ret_row[1], "%Y-%m-%d").date() == datetime.today().date():
                     return jsonify( message =  "Hello, "+ret_row[0]+" !  Happy birthday!") 
@@ -146,15 +146,29 @@ def calculate(dob):
     dobmonth=datetime.strptime(dob, "%Y-%m-%d").date().month
     dobday=datetime.strptime(dob, "%Y-%m-%d").date().day
     curyear=datetime.now().year
-    date1=datetime.now()
-    date2=datetime(curyear, dobmonth, dobday)
-    delta1 = datetime(curyear, dobmonth, dobday)
-    delta2 = datetime(curyear+1, dobmonth, dobday)
-    days = (max(delta1, delta2) - now).days
+    curmonth=datetime.now().month
+    curday=datetime.now().day
+
+    if dobmonth == 2 and dobday == 29:
+      leapyear=curyear
+      while(not calendar.isleap(leapyear)):
+        leapyear=leapyear+1
+      if not leapyear == curyear:
+        days = (max(datetime(leapyear, dobmonth, dobday), datetime(curyear, curmonth, curday)) - now).days
+      else:
+        if datetime(curyear, dobmonth, dobday)  > datetime(curyear, curmonth, curday):
+          days = (max(datetime(leapyear, dobmonth, dobday), datetime(curyear, curmonth, curday)) - now).days
+        else:
+          days = (max(datetime(leapyear, dobmonth, dobday), datetime(curyear, curmonth, curday)) - now).days 
+    else:
+      date1=datetime.now()
+      date2=datetime(curyear, dobmonth, dobday)
+      delta1 = datetime(curyear, dobmonth, dobday)
+      delta2 = datetime(curyear+1, dobmonth, dobday)
+      days = (max(delta1, delta2) - now).days
+
     print(days)
-    #delta = date2 - date1
-    #days = delta.total_seconds() / 60 /60 /24
-    return days
+    return days 
 
 
 #based on request call GET or PUT classes
