@@ -114,6 +114,9 @@ class get_dob(Resource):
                 description= "Hello "+user+" , PUT /hello/"+user+" { \"dateOfBirth\" : \"YYYY-MM-DD\" } for insert/update username and dateofbirth "
                 return jsonify( message = description)
             else :
+                if datetime.strptime(ret_row[1], "%Y-%m-%d").date() == datetime.today().date():
+                    return jsonify( message =  "Hello, "+ret_row[0]+" !  Happy birthday!") 
+
                 print(ret_row[1])
                 days=calculate(ret_row[1])
                 print(days)
