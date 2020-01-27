@@ -42,7 +42,8 @@ class put_dob(Resource):
             sql="""INSERT INTO hello (username, dateofbirth)
                    VALUES ( '%s', '%s' ) 
                    ON CONFLICT ON CONSTRAINT firstkey
-                   DO UPDATE  SET username = '%s' , dateofbirth='%s' RETURNING username;"""
+                   DO UPDATE  SET username = '%s' , dateofbirth='%s'""" 
+            # RETURNING username;"""
             data=(user_id,dob,user_id,dob)
             params = config()
 
@@ -57,6 +58,7 @@ class put_dob(Resource):
             print('Query:'+sql)
             cur.execute(sql%data)
             conn.commit()
+            print(cur.fetchone())
             user = cur.fetchone()[0]
             print(" user: "+user);
             # close the communication with the PostgreSQL
@@ -70,6 +72,8 @@ class put_dob(Resource):
                 return make_response(jsonify( message =  "PUT method complete,  username : "+user_id + " dateOfBirth: "+dob ), 204)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+            description = "PUT failed for given dateOfBirth ."
+            return make_response(jsonify(message = description+str(error)),400)
         finally:
             if conn is not None:
                 conn.close()
@@ -123,6 +127,8 @@ class get_dob(Resource):
                 return jsonify( message =  "Hello, "+ret_row[0]+" ! Your birthday is in "+str(days)+" day(s)")
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
+            description = "GET failed for given username ."
+            return make_response(jsonify(message = description+str(error)),400)
         finally:
             if conn is not None:
                 conn.close()
