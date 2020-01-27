@@ -1,8 +1,7 @@
 #!/usr/bin/python
 import psycopg2
 from config import config
-#import flask -old
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime
 
@@ -48,9 +47,9 @@ class put_dob(Resource):
             if user is None:
                 print( "PUT request failed  for"+ user_id)
                 description= "Hello "+user+" , PUT /hello/"+user+" { \"dateOfBirth\" : \"YYYY-MM-DD\" } for insert/update username and dateofbirth "
-                return jsonify( message = description)
+                return make_response(jsonify( message = description),500)
             else :
-                return jsonify( message =  "PUT method complete,  username : "+user_id + " dateOfBirth: "+dob )
+                return make_response(jsonify( message =  "PUT method complete,  username : "+user_id + " dateOfBirth: "+dob ), 204)
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
@@ -90,8 +89,6 @@ class get_dob(Resource):
                row = cur.fetchone() 
             # close the communication with the PostgreSQL
             cur.close()
-            #print(" return: "+str(ret_row))
-            #return ret_row[0]+ret_row[1]
             if ret_row is None:
                 print( user + " not found ")
                 description= "Hello "+user+" , PUT /hello/"+user+" { \"dateOfBirth\" : \"YYYY-MM-DD\" } for insert/update username and dateofbirth "
