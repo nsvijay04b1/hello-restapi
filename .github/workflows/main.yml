@@ -13,6 +13,7 @@ jobs:
       run: echo Hello, world!
     - name: Run a multi-line script
       run: |
-        python version
+        python hello-app/test.py
+        echo "CI passed"
         
         
