@@ -1,6 +1,6 @@
-# ITG2018-webserver-LB
+# Terraform to launch HA restapi on Ec2 isntances in a autoscaling group behind load balancer
 
-These are the Terraform files as demoed at PQR IT Galaxy 2018.
+
 
 Notice that you will need to create a terraform.tfvars yourself containing:
 - access_key (AWS access key)
