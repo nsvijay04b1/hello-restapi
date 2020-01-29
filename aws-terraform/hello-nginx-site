@@ -1,0 +1,26 @@
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name hello-elb-*.us-east-1.elb.amazonaws.com www.hello-elb-*.us-east-1.elb.amazonaws.com http://hello-elb-*.us-east-1.elb.amazonaws.com;
+
+    access_log /var/log/nginx/healthcheck.access.log;
+    error_log /var/log/nginx/healthcheck.error.log;
+    root /var/www/html
+
+}
+
+server {
+    listen 5000;
+    listen [::]:5000;
+
+    server_name hello-elb-*.us-east-1.elb.amazonaws.com www.hello-elb-*.us-east-1.elb.amazonaws.com http://hello-elb-*.us-east-1.elb.amazonaws.com;
+
+    access_log /var/log/nginx/helloapp.access.log;
+    error_log /var/log/nginx/helloapp.error.log;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/app/hello-app/helloapp.sock;
+    }
+}

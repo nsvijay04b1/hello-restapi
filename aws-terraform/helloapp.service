@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance to serve myproject
+After=network.target
+
+[Service]
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/app/hello-app
+Environment="PATH=/app/hello-app"
+ExecStart=/usr/bin/gunicorn --workers 5 --bind unix:/app/hello-app/helloapp.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
