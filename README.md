@@ -29,12 +29,16 @@ To find the number of days left to next birthday and get "happy birthday" messag
 | PUT /hello/\<username\> { "dateOfBirth" : "YYYY-MM-DD" } | `username` is too long but `dateOfBirth` is a valid date  | 400 BAD REQUEST |  "message": "PUT failed for given `username` & `dateOfBirth` .value too long for type character varying(40)\n"|
 
 
-# Devops lifecycle - 
+# Devops lifecycle 
 
-* webapp =  Python Flask REST API run in a docker container ( for prod flask is supervised by uwsgi )
-* DB =      postgresql in  a container 
-* CI = github Actions  (  Steps included  docker build run, python test , docker image push to docker hub.)
-* CD =  Terraform to create and provision cloud infrastructure ( this is for prod only)
+* webapp 
+    -    Python2.7  Flask REST API run in a docker container ( for prod flask is supervised by uwsgi )
+* DB 
+    -    postgres11 in  a container ( psycopg2 connector on python ) 
+* CI 
+    -    github Actions  (  Steps included  docker build run, python test , docker image push to docker hub.)
+* CD
+    -    Terraform to create and provision cloud infrastructure ( this is for prod only )
 
 #  Project structure 
 
@@ -163,6 +167,7 @@ After code is pushed to github , github actions kickin run a build , test  and u
 
  For production environments, we add Gunicorn, a production-grade WSGI server.
  
+ 
  ```
 After=network.target
 
@@ -204,6 +209,64 @@ WantedBy=multi-user.target
 * AWS HA architecture used
 
 ![AWS architecture](images/re-aws-pic.JPG)
+
+
+
+#  AWS components 
+
+- Auto Scaling group is created which is deployed on all subnets of us-east-1 region.
+
+- Min 2 and Max of 10  EC2 servers are scaled in/out by ASG based on cpu load 70%.
+
+- ASG does ELB type healh checks for deeper check of instance health or application health.
+
+- ALB is used to load balace trafic between different AZs.
+
+- EC2 has instance profile of S3 , to fecth the files to provision the application.
+
+- RDS is used for postgres AWS managed DB for performance, backups and scaling.
+
+- Provisioning of Application is done using userdata section of launch template itself.
+
+```
+******** userdata *********
+#!/bin/bash
+sudo sudo yum update -y
+sudo yum install nginx python2 python2-pip git python2-psycopg2 -y
+sudo python2 -m pip install awscli gunicorn flask
+sudo git clone https://github.com/nsvijay04b1/hello-restapi.git /app
+sudo aws s3 cp "s3://${var.s3_bucket}/helloapp.service" /etc/systemd/system/helloapp.service
+sudo systemctl enable helloapp
+sudo systemctl start helloapp
+sudo aws s3 cp "s3://${var.s3_bucket}/nginx.conf" /etc/nginx/nginx.conf
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
+```
+
+# Terraform
+
+```
+terraform init  - initialize cloud modules of terraform
+terraform validate  - validate the syntax
+terraform plan  -  plan the provising compared to existing state ( display +/-/~ )
+terraform apply  -  apply the changes and store the statefile 
+terraform outputs  -  to check the saved outputs like ( RDS , ELB DNS address for further use)
+```
+
+Make sure your provide aws access keys from a file instead of here , these files may be pushed to public/private repos and keys would be exposed.
+
+```
+provider "aws" {
+  shared_credentials_file = "~/.aws/creds"
+  #access_key = var.access_key
+  #secret_key = var.secret_key
+  region     = var.region
+}
+```
+
+
+
 
 
 
