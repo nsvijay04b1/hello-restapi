@@ -66,81 +66,7 @@ app
 ```
 
 
-* Terraform AWS prod env project files
-```
-aws-terraform
-├── helloapp.service
-├── hello-nginx-site
-├── index.html
-├── inventory.fut
-├── inventory.tpl
-├── LICENSE
-├── main.ELB
-├── main.tf
-├── modules
-│   └── db
-│       ├── CHANGELOG.md
-│       ├── examples
-│       │   ├── complete-mssql
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   └── README.md
-│       │   ├── complete-mysql
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   └── README.md
-│       │   ├── complete-oracle
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   └── README.md
-│       │   ├── complete-postgres
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   └── README.md
-│       │   ├── enhanced-monitoring
-│       │   │   ├── main.tf
-│       │   │   └── README.md
-│       │   ├── replica-mysql
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   └── README.md
-│       │   └── replica-postgres
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       └── README.md
-│       ├── LICENSE
-│       ├── main.tf
-│       ├── Makefile
-│       ├── modules
-│       │   ├── db_instance
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── README.md
-│       │   │   └── variables.tf
-│       │   ├── db_option_group
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── README.md
-│       │   │   └── variables.tf
-│       │   ├── db_parameter_group
-│       │   │   ├── main.tf
-│       │   │   ├── outputs.tf
-│       │   │   ├── README.md
-│       │   │   └── variables.tf
-│       │   └── db_subnet_group
-│       │       ├── main.tf
-│       │       ├── outputs.tf
-│       │       ├── README.md
-│       │       └── variables.tf
-│       ├── outputs.tf
-│       ├── README.md
-│       └── variables.tf
-├── outputs.tf
-├── README.md
-├── vars.tf
-└── versions.tf
 
-````
 
 # Development env ( docker )
 
@@ -160,7 +86,32 @@ After code is pushed to github , github actions kickin run a build , test  and u
   ![github-Actions-CI](images/github-ci.JPG)
   
   
+# Tests 
 
+- Test also written in python.
+- Test data preparation .
+```
+set DateStyle='ISO, YMD';
+CREATE TABLE IF NOT EXISTS hello ( username char(40) CONSTRAINT firstkey PRIMARY KEY, dateofbirth  DATE NOT NULL);
+INSERT INTO hello (username,dateofbirth) VALUES  ('TestLeap','1996/02/29');
+INSERT INTO hello (username,dateofbirth) VALUES  ('TestFuture','2030-01-01');  
+INSERT INTO hello (username,dateofbirth) VALUES  ('TestPast','2000-01-01');  
+COMMIT;
+```
+
+- Test get method
+- Test put method.
+
+```
+tests
+├── arg.py
+├── database.ini
+├── preparedata.py
+├── testdata.txt
+├── test-dbpreparation.py
+└── testget.py
+
+```
 
 
 # Production env ( AWS ) 
@@ -264,7 +215,81 @@ provider "aws" {
   region     = var.region
 }
 ```
+* Terraform AWS prod env project files
+```
+aws-terraform
+├── helloapp.service
+├── hello-nginx-site
+├── index.html
+├── inventory.fut
+├── inventory.tpl
+├── LICENSE
+├── main.ELB
+├── main.tf
+├── modules
+│   └── db
+│       ├── CHANGELOG.md
+│       ├── examples
+│       │   ├── complete-mssql
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── README.md
+│       │   ├── complete-mysql
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── README.md
+│       │   ├── complete-oracle
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── README.md
+│       │   ├── complete-postgres
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── README.md
+│       │   ├── enhanced-monitoring
+│       │   │   ├── main.tf
+│       │   │   └── README.md
+│       │   ├── replica-mysql
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   └── README.md
+│       │   └── replica-postgres
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       └── README.md
+│       ├── LICENSE
+│       ├── main.tf
+│       ├── Makefile
+│       ├── modules
+│       │   ├── db_instance
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── README.md
+│       │   │   └── variables.tf
+│       │   ├── db_option_group
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── README.md
+│       │   │   └── variables.tf
+│       │   ├── db_parameter_group
+│       │   │   ├── main.tf
+│       │   │   ├── outputs.tf
+│       │   │   ├── README.md
+│       │   │   └── variables.tf
+│       │   └── db_subnet_group
+│       │       ├── main.tf
+│       │       ├── outputs.tf
+│       │       ├── README.md
+│       │       └── variables.tf
+│       ├── outputs.tf
+│       ├── README.md
+│       └── variables.tf
+├── outputs.tf
+├── README.md
+├── vars.tf
+└── versions.tf
 
+````
 
 
 
