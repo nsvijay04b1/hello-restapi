@@ -9,6 +9,12 @@ output "this_lb_dns_name" {
   value       = concat(aws_lb.hello-alb.*.dns_name, [""])[0]
 }
 
+output "this_db_instance_endpoint" {
+  description = "The connection endpoint"
+  value       =  module.db.this_db_instance_endpoint
+}
+
+
 /*
 output "ip" {
   value = aws_eip.ip.public_ip

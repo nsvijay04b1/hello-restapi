@@ -25,7 +25,7 @@ data "aws_security_group" "default" {
   name   = "default"
 }
 
-/*
+
 module "db" {
   source = "./modules/db"
 
@@ -64,7 +64,7 @@ module "db" {
   #final_snapshot_identifier = "demodb"  nosnapshot needed
   skip_final_snapshot  = true
 }
-*/
+
 # Get availability zones for the region specified in var.region
 data "aws_availability_zones" "all" {
 }
@@ -89,7 +89,8 @@ resource "aws_autoscaling_group" "hello-asg" {
   name                 = "hello-asg"
   launch_configuration = aws_launch_configuration.hello-lc.id
   availability_zones   = data.aws_availability_zones.all.names
-
+  health_check_grace_period = 600
+  default_cooldown          = 600
   min_size = 2
   max_size = 2
 
