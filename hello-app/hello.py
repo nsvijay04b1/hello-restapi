@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, json, make_response
 from flask_restful import reqparse, abort, Api, Resource
 from datetime import datetime, timedelta, date
 import calendar
+from argparse import ArgumentParser
 
 # configurable - datedelta , no of days atleast dob should be older than 
 datedelta=1  
@@ -14,6 +15,12 @@ now = datetime.now()
 
 app = Flask(__name__)
 api = Api(app)
+parser = ArgumentParser()
+parser.add_argument('--mode')
+args = parser.parse_args()
+mode=args.mode
+app.config['mode'] = args.mode
+print('Passed item: ', app.config['mode'])
 
 #welcome page or default page
 class welcome(Resource):
@@ -45,7 +52,7 @@ class put_dob(Resource):
                    ON CONFLICT ON CONSTRAINT firstkey
                    DO UPDATE  SET username = '%s' , dateofbirth='%s' RETURNING username;""" 
             data=(user_id,dob,user_id,dob)
-            params = config()
+            params = config(mode=app.config['mode'])
 
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
@@ -89,7 +96,7 @@ class get_dob(Resource):
             sql="""SELECT username, TO_CHAR(dateofbirth, 'YYYY-MM-DD') FROM hello where username like trim('%s')"""
             ret_row={}
             user=(user_id)
-            params = config()
+            params =config(mode=app.config['mode'])
  
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
@@ -179,4 +186,9 @@ api.add_resource(put_dob, url, methods=['PUT'])
 
 #main
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True)
+    if ( app.config['mode'] == "dev" ):
+      app.run(host='0.0.0.0',port=9090,debug=True)
+    elif ( app.config['mode'] == "prod" ) :
+      app.run(host='0.0.0.0',debug=True,port="5050")
+    else:
+      print(" mode should be either dev or prod")
