@@ -1,0 +1,9 @@
+server {
+    listen 5000;
+    server_name http://ilplt83.eaas.amdocs.com www.ilplt83.eaas.amdocs.com ilplt83.eaas.amdocs.com;
+
+    location /hello/ {
+        #include proxy_params;
+        proxy_pass unix://users/kube/.vijay/hello-restapi/hello-app/hello.sock;
+    }
+}

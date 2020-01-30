@@ -186,9 +186,10 @@ api.add_resource(put_dob, url, methods=['PUT'])
 
 #main
 if __name__ == '__main__':
-    if ( app.config['mode'] == "dev" ):
-      app.run(host='0.0.0.0',port=9090,debug=True)
-    elif ( app.config['mode'] == "prod" ) :
-      app.run(host='0.0.0.0',debug=True,port="5050")
-    else:
-      print(" mode should be either dev or prod")
+    app.run(host='0.0.0.0',port=80,debug=True)
+    #if ( app.config['mode'] == "dev" ):
+    #  app.run(host='0.0.0.0',port=80,debug=True)
+    #if ( app.config['mode'] == "prod" ) :
+     # app.run(host='0.0.0.0',debug=True,port="5000")
+    #else:
+     # print(" mode should be either dev or prod")

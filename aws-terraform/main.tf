@@ -63,6 +63,8 @@ module "db" {
   # Snapshot name upon DB deletion
   #final_snapshot_identifier = "demodb"  nosnapshot needed
   skip_final_snapshot  = true
+
+
 }
 
 # Get availability zones for the region specified in var.region
@@ -281,6 +283,15 @@ resource "aws_security_group" "hello-alb-sg" {
 
 }
 
+/*provisioner "local-exec" {
+   command  = "sed -e 's/HOST_DB/'${this_db_instance_endpoint}'/g' -i ../hello-app/database.ini ; psql -h  -d demodb -U demouser -W demouser123 -f ../hello-app/tests/testdata.txt "
+}
+*/
+
+/*
+sleep 30; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v -i '${self.public_ip},' --key-file ../terr.pem ./ansible/config.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
+
+*/
 /*
 data "aws_instances" "getIp" {
   instance_tags = {
