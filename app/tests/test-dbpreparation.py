@@ -1,11 +1,12 @@
 #!/usr/bin/python
 import sys, os
 testdir = os.path.dirname(__file__)
-srcdir = '../'
+#srcdir = '../'
+srcdir = '/app'
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
 import flask_restful
-import hello
+import main
 from config import config
 
 import psycopg2, getopt
@@ -29,7 +30,9 @@ def test_get(user_id):
             
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
-            conn = psycopg2.connect(**params)
+            #conn = psycopg2.connect(**params)
+            db_url="postgresql://postgres:postgres@db:5432/postgres"
+            conn = psycopg2.connect(db_url)
 
             # create a cursor
             cur = conn.cursor()

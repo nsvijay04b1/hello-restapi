@@ -56,7 +56,9 @@ class put_dob(Resource):
 
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
-            conn = psycopg2.connect(**params)
+            db_url="postgresql://postgres:postgres@db:5432/postgres"
+            #conn = psycopg2.connect(**params)
+            conn = psycopg2.connect(db_url)
 
             # create a cursor
             cur = conn.cursor()
@@ -100,7 +102,9 @@ class get_dob(Resource):
  
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
-            conn = psycopg2.connect(**params)
+            db_url="postgresql://postgres:postgres@db:5432/postgres"
+            #conn = psycopg2.connect(**params)
+            conn = psycopg2.connect(db_url)
       
             # create a cursor
             cur = conn.cursor()
