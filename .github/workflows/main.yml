@@ -9,11 +9,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
+    - name: Build docker image 
+      run: docker build -t flask_image .
+    - name: Run application container
+      run: docker run --rm -d --name flask-container -p 80:80 flask_image
+    - name: Run tests in the container and push the docker image to github
       run: |
-        python hello-app/test.py
+        curl localhost/hello/
+        python app/tests/testget.py
+        docker tag flask_image docker.io/nsvijay04b1/flask_image
+        docker push docker.io/nsvijay04b1/flask_image
         echo "CI passed"
         
         
