@@ -46,19 +46,17 @@ To find the number of days left to next birthday and get "happy birthday" messag
 
 ```
 app
-├── config.py                     
+├── config.py
 ├── config.pyc
 ├── database.ini
 ├── flask_restful
-│   ├── reqparse.py
-├── hello.nginx
+├── __init__.py
 ├── main.py
 ├── main.pyc
 ├── prestart.sh
-├── test.py
+├── testdata.txt
 ├── tests
 │   ├── preparedata.py
-│   ├── testdata.txt
 │   ├── test-dbpreparation.py
 │   └── testget.py
 ├── uwsgi.ini
@@ -68,17 +66,73 @@ app
 
 
 
-# Development env ( docker )
+# Development env ( docker-compose / Python Flask  )
 
 
 To test on local machine, run docker compose build and up which create a web & db service.
-  application run on dockerhost on port 80.
+  application run on dockerhost on port 8080.
   
 python tests is written to check basic functionality checks.  
   
-``
-docker-compose -f  docker-compose.yaml  up -d --build
-``
+`docker-compose-dev.yaml` run flask app as single core and in debug mode.  
+```
+version: '3.7'
+services:
+  web:
+    build: .
+    command:  python /app/main.py
+    volumes:
+      - ./app/:/app/
+    ports:
+      - 8080:80
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+volumes:
+  postgres_data:
+```  
+
+To run the application in dev mode , run below command using docker-compose.
+```
+docker-compose -f  docker-compose-dev.yaml up -d --build
+```   
+
+```
+hello-restapi git:master ❯ `docker-compose -f docker-compose-dev.yaml ps`                                                                                                                              
+       Name                      Command               State               Ports
+--------------------------------------------------------------------------------------------
+hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
+hello-restapi_web_1   /entrypoint.sh python /app ...   Up      443/tcp, 0.0.0.0:8080->80/tcp
+
+
+
+hello-restapi git:master ❯ `docker-compose -f docker-compose-dev.yaml logs`                                                                                                                              
+Attaching to hello-restapi_web_1, hello-restapi_db_1
+db_1   | 2020-02-03 10:23:49.629 UTC [1] LOG:  starting PostgreSQL 12.0 on x86_64-pc-linux-musl, compiled by gcc (Alpine 8.3.0) 8.3.0, 64-bit
+db_1   | 2020-02-03 13:19:04.585 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db_1   | 2020-02-03 13:19:04.587 UTC [1] LOG:  could not create IPv6 socket for address "::": Address family not supported by protocol
+db_1   | 2020-02-03 13:19:04.601 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db_1   | 2020-02-03 13:19:04.638 UTC [18] LOG:  database system was shut down at 2020-02-03 10:38:05 UTC
+db_1   | 2020-02-03 13:19:04.657 UTC [1] LOG:  database system is ready to accept connections
+web_1  |  * Serving Flask app "main" (lazy loading)
+web_1  |  * Environment: dev
+web_1  |  * Debug mode: on
+web_1  |  * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+web_1  |  * Restarting with stat
+web_1  |  * Debugger is active!
+web_1  |  * Debugger PIN: 594-348-132
+hello-restapi git:master ❯ 
+
+```
 
 After successful test push code to guthib.
 
@@ -92,29 +146,125 @@ After code is pushed to github , github actions kickin run a build , test  and u
 - Test data preparation .
 ```
 set DateStyle='ISO, YMD';
-CREATE TABLE IF NOT EXISTS hello ( username char(40) CONSTRAINT firstkey PRIMARY KEY, dateofbirth  DATE NOT NULL);
+CREATE TABLE IF NOT EXISTS hello ( username varchar(40) CONSTRAINT firstkey PRIMARY KEY, dateofbirth  DATE NOT NULL);
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestLeap','1996/02/29');
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestFuture','2030-01-01');  
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestPast','2000-01-01');  
 COMMIT;
 ```
 
-- Test get method
+   ` docker exec -it hello-restapi_web_1 python /app/tests/ test-dbpreparation.py `
+
+- Test get method 
+     ` docker exec -it hello-restapi_web_1 python /app/tests/testget.py`
 - Test put method.
 
 ```
-tests
-├── arg.py
-├── database.ini
+
+app/tests
 ├── preparedata.py
-├── testdata.txt
 ├── test-dbpreparation.py
 └── testget.py
 
+
 ```
 
+![PUT request success - using postman](images/rev-test-1.JPG)
 
-# Production env ( AWS ) 
+![GET request success - using postman](images/rev-test-2.JPG)
+
+![PUT request failed with wrong username - using postman](images/rev-test-3.JPG)
+
+![PUT request failed with wrong dat of birth - using postman](images/rev-test-4.JPG)
+
+
+
+
+# Production env using docker-compose , wsgi server
+
+`docker-compose-prod.yaml` is for prod env , gunicorn is used to run wsgi server which runs on 5000 port.
+
+```
+version: '3.7'
+services:
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:5000 main:app
+    volumes:
+      - ./app/:/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+volumes:
+  postgres_data:
+  ```
+  
+  `docker-compose -f docker-compose-prod.yaml up -d --build` to launch app in prod mode.
+  
+  ```
+  hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml ps`                                                                                                                               ✖ ✹ ✭
+       Name                      Command               State                    Ports
+------------------------------------------------------------------------------------------------------
+hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
+hello-restapi_web_1   /entrypoint.sh gunicorn -- ...   Up      443/tcp, 0.0.0.0:5000->5000/tcp, 80/tcp
+
+
+hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml logs`                                                                                                                                 ✹
+Attaching to hello-restapi_web_1, hello-restapi_db_1
+web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Starting gunicorn 19.10.0
+web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
+web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Using worker: sync
+web_1  | [2020-02-03 14:27:09 +0000] [10] [INFO] Booting worker with pid: 10
+db_1   | 2020-02-03 14:00:51.115 UTC [1] LOG:  starting PostgreSQL 12.0 on x86_64-pc-linux-musl, compiled by gcc (Alpine 8.3.0) 8.3.0, 64-bit
+db_1   | 2020-02-03 14:27:08.667 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db_1   | 2020-02-03 14:27:08.676 UTC [1] LOG:  could not create IPv6 socket for address "::": Address family not supported by protocol
+db_1   | 2020-02-03 14:27:08.693 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db_1   | 2020-02-03 14:27:08.724 UTC [19] LOG:  database system was shut down at 2020-02-03 14:09:11 UTC
+db_1   | 2020-02-03 14:27:08.731 UTC [1] LOG:  database system is ready to accept connections
+
+
+```
+
+# Env variables for app/DB  of development env
+
+```
+hello-restapi git:master ❯ cat .env.dev                                                                                                 FLASK_APP=main.py
+FLASK_ENV=dev
+DB_URL=postgresql://postgresql:postgresql@db:5432/postgresql
+HOST=db
+PORT=5432
+DATABASE=postgres
+APP_FOLDER=/app
+USER=postgres
+PASSWORD=postgres
+```
+
+# Env variables for app/DB  of development env
+ 
+```hello-restapi git:master ❯ cat .env.prod                                                                                             
+FLASK_APP=main.py
+FLASK_ENV=prod
+DB_URL=postgresql://postgresql:postgresql@db:5432/postgresql
+HOST=db
+PORT=5432
+DATABASE=postgres
+APP_FOLDER=/app
+USER=postgres
+PASSWORD=postgres
+hello-restapi git:master ❯                                  
+```
+# Production env on cloud ( AWS ) 
 
  For production environments, we add Gunicorn, a production-grade WSGI server.
  
