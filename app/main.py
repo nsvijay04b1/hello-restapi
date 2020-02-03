@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pthon
 import psycopg2
 from config import config
 from flask import Flask, request, jsonify, json, make_response
@@ -15,12 +15,12 @@ now = datetime.now()
 
 app = Flask(__name__)
 api = Api(app)
-parser = ArgumentParser()
-parser.add_argument('--mode')
-args = parser.parse_args()
-mode=args.mode
-app.config['mode'] = args.mode
-print('Passed item: ', app.config['mode'])
+#parser = ArgumentParser()
+#parser.add_argument('--mode')
+#args = parser.parse_args()
+#mode=args.mode
+#app.config['mode'] = args.mode
+#print('Passed item: ', app.config['mode'])
 
 #welcome page or default page
 class welcome(Resource):
@@ -52,13 +52,14 @@ class put_dob(Resource):
                    ON CONFLICT ON CONSTRAINT firstkey
                    DO UPDATE  SET username = '%s' , dateofbirth='%s' RETURNING username;""" 
             data=(user_id,dob,user_id,dob)
-            params = config(mode=app.config['mode'])
+            #params = config(mode=app.config['mode'])
+            params = config()
 
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
-            db_url="postgresql://postgres:postgres@db:5432/postgres"
-            #conn = psycopg2.connect(**params)
-            conn = psycopg2.connect(db_url)
+            #db_url="postgresql://postgres:postgres@db:5432/postgres"
+            conn = psycopg2.connect(**params)
+            #conn = psycopg2.connect(db_url)
 
             # create a cursor
             cur = conn.cursor()
@@ -95,23 +96,24 @@ class get_dob(Resource):
         conn = None
         try:
             # read connection parameters
-            sql="""SELECT username, TO_CHAR(dateofbirth, 'YYYY-MM-DD') FROM hello where username like trim('%s')"""
+            sql="SELECT trim(username), TO_CHAR(dateofbirth, 'YYYY-MM-DD') FROM hello where username = trim('%s')"%(user_id)
             ret_row={}
-            user=(user_id)
-            params =config(mode=app.config['mode'])
+            #user=(user_id)
+            #params =config(mode=app.config['mode'])
+            params =config()
  
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
-            db_url="postgresql://postgres:postgres@db:5432/postgres"
-            #conn = psycopg2.connect(**params)
-            conn = psycopg2.connect(db_url)
+            #db_url="postgresql://postgres:postgres@db:5432/postgres"
+            conn = psycopg2.connect(**params)
+            #conn = psycopg2.connect(db_url)
       
             # create a cursor
             cur = conn.cursor()
         
             # execute a statement
             print('Query:'+sql)
-            cur.execute(sql%user)
+            cur.execute(sql)
             print("The number of parts: ", cur.rowcount)
             row = cur.fetchone()
             ret_row=row
@@ -125,8 +127,8 @@ class get_dob(Resource):
 
             # return response
             if ret_row is None:
-                print( user + " not found ")
-                description= "Hello "+user+" , PUT /hello/"+user+" { \"dateOfBirth\" : \"YYYY-MM-DD\" } for insert/update username and dateofbirth "
+                print( user_id + " not found ")
+                description= "Hello "+user_id+" , PUT /hello/"+user_id+" { \"dateOfBirth\" : \"YYYY-MM-DD\" } for insert/update username and dateofbirth "
                 return make_response(jsonify( message = description),400)
             else :
                 if datetime.strptime(ret_row[1], "%Y-%m-%d").date() == datetime.today().date():
@@ -190,7 +192,7 @@ api.add_resource(put_dob, url, methods=['PUT'])
 
 #main
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80,debug=True)
+    app.run(host='0.0.0.0',port=80, debug=True)
     #if ( app.config['mode'] == "dev" ):
     #  app.run(host='0.0.0.0',port=80,debug=True)
     #if ( app.config['mode'] == "prod" ) :

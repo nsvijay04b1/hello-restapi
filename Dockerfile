@@ -1,6 +1,6 @@
 FROM tiangolo/uwsgi-nginx:python2.7
-LABEL maintainer="Sebastian Ramirez <tiangolo@gmail.com>"
-RUN pip install flask psycopg2 six requests
+LABEL maintainer="Vijay <nsvijay04b1@gmail.com>"
+RUN pip install flask psycopg2 six requests gunicorn 
 #RUN pip install flask psycopg2 six requests --proxy http://10.XX.XX.70:8080  for proxy envs
 #ENV HTTP_PROXY http://10.XX.XX.70:8080
 #ENV HTTPS_PROXY http://10.XX.XX.70:8080

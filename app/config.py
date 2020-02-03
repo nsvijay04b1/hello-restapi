@@ -1,10 +1,14 @@
 #!/usr/bin/python
 from ConfigParser import ConfigParser
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
  
  
-def config(filename='database.ini', section='postgresql', mode='dev'):
+def config(filename='/app/database.ini', section='postgresql', mode='dev'):
     # create a parser
     parser = ConfigParser()
+    mode=os.getenv('FLASK_ENV')
+    print('mode '+mode)
     # read config file
     parser.read(filename)
     section=section+"_"+mode
@@ -15,6 +19,7 @@ def config(filename='database.ini', section='postgresql', mode='dev'):
         params = parser.items(section)
         for param in params:
             db[param[0]] = param[1]
+            print(param)
     else:
         raise Exception('Section {0} not found in the {1} file'.format(section, filename))
  

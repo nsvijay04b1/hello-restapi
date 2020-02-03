@@ -21,24 +21,26 @@ def test_get(user_id):
         """ Connect to the PostgreSQL database server """
         conn = None
         try:
-            sql="""SELECT trim(username) FROM hello where username like trim('%s')"""
+            sql="SELECT trim(username) FROM hello where username = trim('%s')"%(user_id)
             ret_row={}
             user=(user_id)
             print(user)
             # read connection parameters
-            params = config(mode='dev')
+            #params = config(mode='dev')
+            params = config()
             
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
-            #conn = psycopg2.connect(**params)
-            db_url="postgresql://postgres:postgres@db:5432/postgres"
-            conn = psycopg2.connect(db_url)
+            conn = psycopg2.connect(**params)
+            #db_url="postgresql://postgres:postgres@db:5432/postgres"
+            #conn = psycopg2.connect(db_url)
 
             # create a cursor
             cur = conn.cursor()
 
             # execute a statement and commit
-            cur.execute(sql%user)
+            print("Sql: "+sql)
+            cur.execute(sql)
             print("The number of parts: ", cur.rowcount)
             row = cur.fetchone()
             ret_row=row
@@ -50,7 +52,7 @@ def test_get(user_id):
             # close the communication with the PostgreSQL
             cur.close()
             # return response
-            return ret_row[0]
+            return str(ret_row[0])
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:

@@ -5,10 +5,7 @@ testdir = os.path.dirname(__file__)
 srcdir = '/app'
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
-import flask_restful
-import main
 from config import config
-
 import psycopg2
 from flask import Flask, request, jsonify, json, make_response
 from flask_restful import reqparse, abort, Api, Resource

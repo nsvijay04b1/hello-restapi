@@ -1,5 +1,5 @@
 set DateStyle='ISO, YMD';
-CREATE TABLE IF NOT EXISTS hello ( username char(40) CONSTRAINT firstkey PRIMARY KEY, dateofbirth  DATE NOT NULL);
+CREATE TABLE IF NOT EXISTS hello ( username varchar(40) CONSTRAINT firstkey PRIMARY KEY, dateofbirth  DATE NOT NULL);
 DELETE from hello;
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestLeap','1996/02/29');
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestFuture','2030-01-01');  
