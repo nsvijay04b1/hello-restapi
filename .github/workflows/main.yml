@@ -12,11 +12,10 @@ jobs:
     - name: Build docker image 
       run: docker build -t flask_image .
     - name: Run application container
-      run: docker run --rm -d --name flask-container -p 80:80 flask_image
+      run: docker-compose -f  docker-compose-dev.yaml up -d --build
     - name: Run tests in the container 
       run: |
-        curl http://localhost:80/hello/ || true
-        python app/tests/testget.py || true
+        curl http://localhost:8080/hello/TestLeap || true
         echo "APP is working"
     - uses: actions/checkout@master
     - name: Publish to Registry
