@@ -17,7 +17,8 @@ jobs:
       run: |
         docker-compose -f  docker-compose-dev.yaml ps || true
         sleep 30 || true
-        docker exec -it hello-restapi_web_1 python /app/tests/testget.py  && echo " Test passed"
+        docker exec -it hello-restapi_web_1 python /app/tests/testget.py  
+        echo " Test passed"
     - uses: actions/checkout@master
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
