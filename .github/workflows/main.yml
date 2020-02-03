@@ -15,7 +15,9 @@ jobs:
       run: docker-compose -f  docker-compose-dev.yaml up -d --build
     - name: Run tests in the container 
       run: |
-        curl http://localhost:8080/hello/TestLeap || true
+        docker-compose -f  docker-compose-dev.yaml ps || true
+        docker exec -it hello-restapi_web_1 /app/tests/testget.py || true
+        curl -X GET 'http://localhost:8080/hello/TestLeap' || true
         echo "APP is working"
     - uses: actions/checkout@master
     - name: Publish to Registry
