@@ -137,7 +137,7 @@ hello-restapi git:master ❯
 After successful test push code to guthib.
 
 After code is pushed to github , github actions kickin run a build , test  and upload a package to github.
-  ![github-Actions-CI](images/github-ci.JPG)
+  ```![github-Actions-CI](images/github-ci.JPG)```
   
   
 # Tests 
@@ -213,14 +213,14 @@ volumes:
   `docker-compose -f docker-compose-prod.yaml up -d --build` to launch app in prod mode.
   
   ```
-  hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml ps`                                                                                                                               ✖ ✹ ✭
+  hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml ps`                                                                                                                               
        Name                      Command               State                    Ports
 ------------------------------------------------------------------------------------------------------
 hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
 hello-restapi_web_1   /entrypoint.sh gunicorn -- ...   Up      443/tcp, 0.0.0.0:5000->5000/tcp, 80/tcp
 
 
-hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml logs`                                                                                                                                 ✹
+hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml logs`                                                                                                                                 
 Attaching to hello-restapi_web_1, hello-restapi_db_1
 web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Starting gunicorn 19.10.0
 web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
