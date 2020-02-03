@@ -16,8 +16,7 @@ jobs:
     - name: Run tests in the container 
       run: |
         docker-compose -f  docker-compose-dev.yaml ps || true
-        sleep 30 || true
-        docker exec -it hello-restapi_web_1 python /app/tests/testget.py  
+        docker exec -it hello-restapi_web_1 python /app/tests/testget.py  || true
         echo " Test passed"
     - uses: actions/checkout@master
     - name: Publish to Registry
