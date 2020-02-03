@@ -16,9 +16,8 @@ jobs:
     - name: Run tests in the container 
       run: |
         docker-compose -f  docker-compose-dev.yaml ps || true
-        docker exec -it hello-restapi_web_1 python /app/tests/testget.py || true
-        curl -X GET "http://localhost:8080/hello/TestLeap"   || true
-        echo "APP is working"
+        sleep 30 || true
+        docker exec -it hello-restapi_web_1 python /app/tests/testget.py  && echo " Test passed"
     - uses: actions/checkout@master
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
