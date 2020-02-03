@@ -110,7 +110,7 @@ docker-compose -f  docker-compose-dev.yaml up -d --build
 ```   
 
 ```
- ❯ `docker-compose -f docker-compose-dev.yaml ps`                                                                                                                              
+❯ docker-compose -f docker-compose-dev.yaml ps                                                                                                                             
        Name                      Command               State               Ports
 --------------------------------------------------------------------------------------------
 hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
@@ -118,7 +118,7 @@ hello-restapi_web_1   /entrypoint.sh python /app ...   Up      443/tcp, 0.0.0.0:
 
 
 
- ❯ `docker-compose -f docker-compose-dev.yaml logs`                                                                                                                              
+❯ docker-compose -f docker-compose-dev.yaml logs                                                                                                                             
 Attaching to hello-restapi_web_1, hello-restapi_db_1
 db_1   | 2020-02-03 10:23:49.629 UTC [1] LOG:  starting PostgreSQL 12.0 on x86_64-pc-linux-musl, compiled by gcc (Alpine 8.3.0) 8.3.0, 64-bit
 db_1   | 2020-02-03 13:19:04.585 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
@@ -133,7 +133,7 @@ web_1  |  * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
 web_1  |  * Restarting with stat
 web_1  |  * Debugger is active!
 web_1  |  * Debugger PIN: 594-348-132
- ❯ 
+ 
 
 ```
 # CI  - using github Actions
@@ -168,7 +168,7 @@ COMMIT;
 
 - Test if Data prepared during  the initializtion is good.
 
-   ` docker exec -it hello-restapi_web_1 python /app/tests/ test-dbpreparation.py `
+   ` docker exec -it hello-restapi_web_1 python /app/tests/test-dbpreparation.py `
 
 - Test get method  to check if we can get Birthday message of a test user correctly.
 
@@ -238,14 +238,14 @@ volumes:
   `docker-compose -f docker-compose-prod.yaml up -d --build` to launch app in prod mode.
   
   ```
-   ❯ `docker-compose -f docker-compose-prod.yaml ps`                                                                                                                               
+ ❯ docker-compose -f docker-compose-prod.yaml ps                                                                                                                               
        Name                      Command               State                    Ports
 ------------------------------------------------------------------------------------------------------
 hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
 hello-restapi_web_1   /entrypoint.sh gunicorn -- ...   Up      443/tcp, 0.0.0.0:5000->5000/tcp, 80/tcp
 
 
- ❯ `docker-compose -f docker-compose-prod.yaml logs`                                                                                                                                 
+ ❯ docker-compose -f docker-compose-prod.yaml logs                                                                                                                               
 Attaching to hello-restapi_web_1, hello-restapi_db_1
 web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Starting gunicorn 19.10.0
 web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
@@ -276,7 +276,7 @@ USER=postgres
 PASSWORD=postgres
 ```
 
-# Env variables for app/DB  of development env
+# Env variables for app/DB  of production env
  
 ``` 
 cat .env.prod                                                                                             
