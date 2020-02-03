@@ -32,13 +32,16 @@ To find the number of days left to next birthday and get "happy birthday" messag
 # Devops lifecycle 
 
 * webapp 
-    -    Python2.7  Flask REST API run in a docker container ( for prod flask is supervised by uwsgi )
+    -    Python2.7  Flask REST API run in a docker container ( for production - flask is supervised by wsgi/gunicorn  server  )
+    
 * DB 
     -    postgres11 in  a docker container ( psycopg2 connector on python ) 
+    
 * CI 
-    -    github Actions  (  Steps included  docker build run, python test , docker image push to docker hub.)
+    -    github Actions  (  Steps included  docker build run, create a web & db services using docker-compose ,  run a python automatic test and when tests are successful , push docker image to docker hub.)
+    
 * CD
-    -    Terraform to create and provision cloud infrastructure ( this is for prod only )
+    -    Terraform to create and provision cloud infrastructure on AWS and to deploy the rest api on ec2 servers, RDS , load balanced with ELB ( this is for prod only )
 
 #  Project structure 
 
@@ -101,13 +104,13 @@ volumes:
   postgres_data:
 ```  
 
-To run the application in dev mode , run below command using docker-compose.
+To run the application in development mode , run below command using docker-compose.
 ```
 docker-compose -f  docker-compose-dev.yaml up -d --build
 ```   
 
 ```
-hello-restapi git:master ❯ `docker-compose -f docker-compose-dev.yaml ps`                                                                                                                              
+ ❯ `docker-compose -f docker-compose-dev.yaml ps`                                                                                                                              
        Name                      Command               State               Ports
 --------------------------------------------------------------------------------------------
 hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
@@ -115,7 +118,7 @@ hello-restapi_web_1   /entrypoint.sh python /app ...   Up      443/tcp, 0.0.0.0:
 
 
 
-hello-restapi git:master ❯ `docker-compose -f docker-compose-dev.yaml logs`                                                                                                                              
+ ❯ `docker-compose -f docker-compose-dev.yaml logs`                                                                                                                              
 Attaching to hello-restapi_web_1, hello-restapi_db_1
 db_1   | 2020-02-03 10:23:49.629 UTC [1] LOG:  starting PostgreSQL 12.0 on x86_64-pc-linux-musl, compiled by gcc (Alpine 8.3.0) 8.3.0, 64-bit
 db_1   | 2020-02-03 13:19:04.585 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
@@ -130,21 +133,28 @@ web_1  |  * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
 web_1  |  * Restarting with stat
 web_1  |  * Debugger is active!
 web_1  |  * Debugger PIN: 594-348-132
-hello-restapi git:master ❯ 
+ ❯ 
 
 ```
+# CI  - using github Actions
 
-After successful test push code to guthib.
+* After successful push of code to github from local.
 
-After code is pushed to github , github actions kickin run a build , test  and upload a package to github.
+* Github Actions launches a CI build "on push" trigger.
+
+* It runs a build ,  create docker images, deploys with docker-compose  and run automated tests.
+
+* If successful,  upload the image to dockerhub.
+
 
 ![github-Actions-CI](images/github-ci.JPG)
-  
-  
-# Tests 
 
-- Test also written in python.
-- Test data preparation .
+
+  
+# Test data
+
+* Below table/data is created during initialization of web app . 
+
 ```
 set DateStyle='ISO, YMD';
 CREATE TABLE IF NOT EXISTS hello ( username varchar(40) CONSTRAINT firstkey PRIMARY KEY, dateofbirth  DATE NOT NULL);
@@ -152,14 +162,18 @@ INSERT INTO hello (username,dateofbirth) VALUES  ('TestLeap','1996/02/29');
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestFuture','2030-01-01');  
 INSERT INTO hello (username,dateofbirth) VALUES  ('TestPast','2000-01-01');  
 COMMIT;
-```
+```  
+
+# Tests  - written in python
+
+- Test if Data prepared during  the initializtion is good.
 
    ` docker exec -it hello-restapi_web_1 python /app/tests/ test-dbpreparation.py `
 
-- Test get method 
-     ` docker exec -it hello-restapi_web_1 python /app/tests/testget.py`
-- Test put method.
+- Test get method  to check if we can get Birthday message of a test user correctly.
 
+     ` docker exec -it hello-restapi_web_1 python /app/tests/testget.py`
+     
 ```
 
 app/tests
@@ -224,14 +238,14 @@ volumes:
   `docker-compose -f docker-compose-prod.yaml up -d --build` to launch app in prod mode.
   
   ```
-  hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml ps`                                                                                                                               
+   ❯ `docker-compose -f docker-compose-prod.yaml ps`                                                                                                                               
        Name                      Command               State                    Ports
 ------------------------------------------------------------------------------------------------------
 hello-restapi_db_1    docker-entrypoint.sh postgres    Up      5432/tcp
 hello-restapi_web_1   /entrypoint.sh gunicorn -- ...   Up      443/tcp, 0.0.0.0:5000->5000/tcp, 80/tcp
 
 
-hello-restapi git:master ❯ `docker-compose -f docker-compose-prod.yaml logs`                                                                                                                                 
+ ❯ `docker-compose -f docker-compose-prod.yaml logs`                                                                                                                                 
 Attaching to hello-restapi_web_1, hello-restapi_db_1
 web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Starting gunicorn 19.10.0
 web_1  | [2020-02-03 14:27:09 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000 (1)
@@ -250,7 +264,8 @@ db_1   | 2020-02-03 14:27:08.731 UTC [1] LOG:  database system is ready to accep
 # Env variables for app/DB  of development env
 
 ```
-hello-restapi git:master ❯ cat .env.dev                                                                                                 FLASK_APP=main.py
+cat .env.dev                                                                                                 
+FLASK_APP=main.py
 FLASK_ENV=dev
 DB_URL=postgresql://postgresql:postgresql@db:5432/postgresql
 HOST=db
@@ -263,7 +278,8 @@ PASSWORD=postgres
 
 # Env variables for app/DB  of development env
  
-```hello-restapi git:master ❯ cat .env.prod                                                                                             
+``` 
+cat .env.prod                                                                                             
 FLASK_APP=main.py
 FLASK_ENV=prod
 DB_URL=postgresql://postgresql:postgresql@db:5432/postgresql
@@ -273,7 +289,7 @@ DATABASE=postgres
 APP_FOLDER=/app
 USER=postgres
 PASSWORD=postgres
-hello-restapi git:master ❯                                  
+                                 
 ```
 # Production env on cloud ( AWS ) 
 
