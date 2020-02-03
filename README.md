@@ -34,7 +34,7 @@ To find the number of days left to next birthday and get "happy birthday" messag
 * webapp 
     -    Python2.7  Flask REST API run in a docker container ( for prod flask is supervised by uwsgi )
 * DB 
-    -    postgres11 in  a container ( psycopg2 connector on python ) 
+    -    postgres11 in  a docker container ( psycopg2 connector on python ) 
 * CI 
     -    github Actions  (  Steps included  docker build run, python test , docker image push to docker hub.)
 * CD
@@ -137,7 +137,8 @@ hello-restapi git:master ❯
 After successful test push code to guthib.
 
 After code is pushed to github , github actions kickin run a build , test  and upload a package to github.
-  ```![github-Actions-CI](images/github-ci.JPG)```
+
+![github-Actions-CI](images/github-ci.JPG)
   
   
 # Tests 
@@ -169,11 +170,21 @@ app/tests
 
 ```
 
+# Tests using Postman 
+
+ *  PUT request success 
+ 
 ![PUT request success - using postman](images/rev-test-1.JPG)
+
+*  GET request success
 
 ![GET request success - using postman](images/rev-test-2.JPG)
 
+*  PUT request failed with wrong username
+
 ![PUT request failed with wrong username - using postman](images/rev-test-3.JPG)
+
+*  PUT request failed with wrong dat of birth
 
 ![PUT request failed with wrong dat of birth - using postman](images/rev-test-4.JPG)
 
